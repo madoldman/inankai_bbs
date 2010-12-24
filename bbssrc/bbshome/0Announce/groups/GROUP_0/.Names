@@ -1,0 +1,27 @@
+#
+# Title=○ 系统记录区                         (BM: SYSOP)
+#
+Name=○ 站长的工作室                       (BM: SYSOP)
+Path=~/sysop
+Numb=1
+#
+Name=○ 本站各项投票与结果                 (BM: SYSOP)
+Path=~/vote
+Numb=2
+#
+Name=○ 本站的各类统计列表与数据           (BM: SYSOP)
+Path=~/bbslists
+Numb=3
+#
+Name=○ 新手上路                           
+Path=~/newcomers
+Numb=4
+#
+Name=○ 酸甜苦辣留言板
+Path=~/notepad
+Numb=5
+#
+Name=○ 个人文集申请                       (BM: SYSOPs)
+Path=~/PersonalCorpus
+Numb=6
+#

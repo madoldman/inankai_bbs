@@ -1,0 +1,5 @@
+echo
+echo "Õì²âµ½Ó¢ÎÄ×Ö, ·­²éÓ¢ºº×Öµä..."
+echo
+echo "ÇëÉÔºò...."
+exec /usr/local/bin/cdict $1 > /home/bbs/tmp/dict.$2_$3

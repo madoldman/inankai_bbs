@@ -1,0 +1,222 @@
+/* 
+ * predict.c: auto weather predict 
+ * 
+ * Author: Chain.bbs@bbs.sjtu.edu.cn 
+ * 
+ * 
+ * Copyright (C) 2000-2001 Sjtu BBS Dev Group. <bbs.sjtu.edu.cn> 
+ * 
+ * This program is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or 
+ * (at your option) any later version. 
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ * GNU General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program; if not, write to the Free Software 
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+  
+ * $Id: weather.c,v 1.1.1.1 2008-11-23 08:13:23 madoldman Exp $ 
+ */ 
+#include <sys/types.h> 
+#include <sys/socket.h> 
+#include <sys/stat.h> 
+#include <sys/un.h> 
+#include <netinet/in.h> 
+#include <fcntl.h> 
+#include <unistd.h> 
+#include <stdio.h> 
+#include <strings.h> 
+#define BBSHOME "./" 
+#define LOCALTMPFILE "predict.tmp" 
+#define TMPPATH "./" 
+#define LOCALFILE "weather" 
+#define DEST_IP "159.226.237.82"  //www.nmc.gov.cn 请自己ping一下 
+#define DEST_PORT 80 
+#define LINELEN 84 
+int 
+read_stream(int fd, char *ptr, int maxbytes) 
+{ 
+ int nleft, nread; 
+ nleft = maxbytes; 
+ while (nleft > 0) { 
+  if ( (nread = read(fd, ptr, nleft)) < 0) 
+   return(nread);  /* error, return < 0 */ 
+  else if (nread == 0) 
+   break;    /* EOF, return #bytes read */ 
+  nleft -= nread; 
+  ptr   += nread; 
+ } 
+ return(maxbytes - nleft);  /* return >= 0 */ 
+} 
+int get_predict(){ 
+ int fd,len,flag;/*flag mean save to the file have begin*/ 
+ FILE* lfd; 
+ int lastpos; 
+ struct sockaddr_in i_a,my_addr; 
+ int pos=-1; 
+ char tmpfile[40]; 
+ char reply[401]; 
+ int  havefeedback; 
+ int n; 
+ static char request[] = "GET /cgi-bin/cgi200010/query?03 \r\n\r\n"; 
+ if ((fd=socket(AF_INET,SOCK_STREAM,0))<0){ 
+  printf("socket create error"); 
+  return -1; 
+ } 
+ memset(&i_a,0,sizeof(struct sockaddr_in)); 
+ i_a.sin_family   = AF_INET; 
+ i_a.sin_addr.s_addr = inet_addr(DEST_IP); 
+ i_a.sin_port   = htons(DEST_PORT); 
+ if ((connect(fd,(struct sockaddr*)&i_a,sizeof(struct sockaddr)))==-1){ 
+  printf("connect error\n"); 
+  return -2; 
+ } 
+ if (send(fd, request, strlen(request),0)==-1){ 
+  printf("send error"); 
+  return -3; 
+ } 
+ strcpy(tmpfile,TMPPATH); 
+ strcat(tmpfile,LOCALTMPFILE); 
+ if ((lfd=fopen(tmpfile,"w"))==NULL){ 
+  printf("create tmp file error\n"); 
+ printf("%s\n",tmpfile); return -4; 
+ } 
+  while ((n = read_stream(fd, reply, 400)) > 0) { 
+   fwrite(reply,n,1,lfd); 
+ } 
+ close(fd); 
+ fclose(lfd); 
+        write_valid_weather_file(tmpfile); 
+ if (n < 0) 
+  printf("read error\n"); 
+ exit(0); 
+} 
+int write_valid_weather_file(char* tmpfile) 
+{ 
+ FILE *fp; 
+ char rdstring[401]; 
+ char *rtval; 
+ int flag=0; 
+ int totalcount=33; 
+ int citycount=0; 
+ int i,windlen; 
+ char genbuf[LINELEN]; 
+ int startpoint[6]={12,22,32,37,44,60}; 
+ fp=fopen(tmpfile,"r"); 
+ if (fp==NULL) 
+ { 
+  printf("Open temp file failed\n"); 
+  return 1; 
+ } 
+ while (flag!=2) 
+ { 
+  if (flag==0) 
+  { 
+   rtval=fgets(rdstring,400,fp); 
+   if (rtval==NULL) 
+   { 
+    return -1; 
+   } 
+   else 
+   { 
+    if (strstr(rdstring,"月")!=NULL && strstr(rdstring,"日")!=NULL && strstr 
+(rdstring,"时")!=NULL && strstr(rdstring,"至")!=NULL) 
+    { 
+     printf("\n                         国内城市24小时天气预报\n"); 
+     printf("                    %s\n",rdstring);/*年月日*/ 
+     printf(" ************************************************************** 
+*************\n"); 
+     printf(" *  城 市       天气现象         温度（C）            风向风力 
+            *\n"); 
+     printf(" *           夜间      白天     最低 最高      夜间 
+白天        *\n"); 
+     printf(" ************************************************************** 
+*************\n"); 
+    } 
+    else if ((rtval=(char*)strstr(rdstring,"北京"))!=NULL) 
+    { 
+     for ( i=0;i<LINELEN;i++) 
+      genbuf[i]=' '; 
+     genbuf[1]='*'; 
+     strcpy(genbuf+4,"北京"); 
+     genbuf[8]=' '; 
+     flag=1; 
+     for (i=0;i<6;i++) 
+     { 
+      fgets(rdstring,400,fp); 
+      rtval=(char*)strstr(rdstring+71,"</"); 
+      if (rtval!=NULL) 
+      { 
+       rdstring[rtval-rdstring]='\0'; 
+       strcpy(genbuf+startpoint[i],rdstring+71); 
+       genbuf[startpoint[i]+rtval-rdstring-71]=' '; 
+      } 
+     } 
+     strcpy(genbuf+75,"*"); 
+     printf("%s\n",genbuf); 
+     fgets(rdstring,400,fp); 
+     fgets(rdstring,400,fp); 
+    } 
+   } 
+  } 
+  else if (flag==1) 
+  { 
+   for (;totalcount>0;totalcount--) 
+   { 
+    for ( i=0;i<LINELEN;i++) 
+     genbuf[i]=' '; 
+    genbuf[1]='*'; 
+    fgets(rdstring,400,fp); 
+    rtval=(char*)strstr(rdstring+88,"</"); 
+    rdstring[rtval-rdstring]='\0'; 
+    strcpy(genbuf+3,rdstring+88); 
+    genbuf[3+rtval-rdstring-88]=' '; 
+    for (i=0;i<6;i++) 
+    { 
+      fgets(rdstring,400,fp); 
+      rtval=(char*)strstr(rdstring+71,"</"); 
+      if (rtval!=NULL) 
+      { 
+       rdstring[rtval-rdstring]='\0'; 
+       strcpy(genbuf+startpoint[i],rdstring+71); 
+        genbuf[startpoint[i]+rtval-rdstring-71]=' '; 
+      } 
+    } 
+    strcpy(genbuf+75,"*"); 
+    if(totalcount==33)//上海，使用特殊的颜色 
+    { 
+     printf(" *"); 
+     printf(";34;47m"); 
+     genbuf[75]='\0'; 
+     printf("%s",genbuf+2); 
+     printf("m"); 
+     printf("*\n"); 
+    } 
+    else 
+    { 
+     printf("%s\n",genbuf); 
+    } 
+    fgets(rdstring,400,fp); 
+    fgets(rdstring,400,fp); 
+   } 
+   flag=2; 
+  } 
+ } 
+ fclose(fp); 
+ printf(" ****************************************************************** 
+*********\n"); 
+ printf("                 气象信息取自 中国气象在线(www.nmc.gov.cn) \n"); 
+ return 0; 
+  
+} 
+
+int main() 
+{ 
+ get_predict(); 
+ return 0; 
+} 

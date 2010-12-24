@@ -1,0 +1,195 @@
+<html>
+	<head>
+		<title>
+			名单编辑
+		</title>
+<LINK href="/css/violet_spirit/bbsguide4.css" type="text/css" rel="stylesheet" id="csssheet">
+<script language="javascript" src="/js/home_style.js"></script>
+		<style>
+       #usl ul {
+    clear:both;
+    MARGIN: 0px;
+    PADDING: 0px;
+    border:none;
+    LINE-HEIGHT: 150%;
+    LIST-STYLE-TYPE: none;
+    TEXT-ALIGN: center;
+    DISPLAY:inline;
+    }
+       #usl li {
+    FLOAT: left;
+    DISPLAY: block;
+    MARGIN: 0px;
+    width:200;
+    text-align:center;
+    }
+		</style>
+	</head>
+	<body>
+		<script language="javascript" src="/js/ajax.js">
+		</script>	
+		<script language="javascript">
+			var srcurl=window.location.href;
+			var vfile1, vfile2, vtitle;
+			var otxt;
+			var vlst;
+			init_ul();
+			function getparm(parm)
+			{
+				var pos, pose;
+				var v;
+				pos=srcurl.indexOf('?'+parm+'=')+parm.length+2;
+				if(pos<=parm.length+2)pos=srcurl.indexOf('&'+parm+'=')+parm.length+2;
+				if(pos>parm.length+2)
+				{
+					pose=srcurl.indexOf('&',pos);
+					if(pose>0)v=srcurl.substring(pos,pose);else v=srcurl.substring(pos);
+				}
+				else v='';
+				return v;
+			}
+			function init_ul()
+			{
+				var o;
+				var obtn;
+				init();
+				vfile1=getparm('file1');
+				vfile2=getparm('file2');
+				vtitle=getparm('title');
+				vlst=document.createElement('ul');
+				vlst.setAttribute('id','usl');
+				o=document.createElement('h3');
+				o.setAttribute('align','center');
+				ot=document.createTextNode(vtitle);
+				o.appendChild(ot);
+				document.body.appendChild(o);
+				o=document.createElement('p');
+				o.setAttribute('align','center');
+				otxt=document.createElement('input');
+				otxt.setAttribute('type','text');
+				otxt.setAttribute('maxlen','16');
+				obtn=document.createElement('input');
+				obtn.setAttribute('type','button');
+				obtn.setAttribute('value','添加');
+				EventUtil.addEventHandler(obtn,'click',adduser);
+				EventUtil.addEventHandler(otxt,'keypress',txtchange);
+				o.appendChild(otxt);
+				o.appendChild(obtn);
+				obtn=document.createElement('input');
+				obtn.setAttribute('type','button');
+				obtn.setAttribute('value','确定');
+				EventUtil.addEventHandler(obtn,'click',savelist);
+				o.appendChild(obtn);
+				obtn=document.createElement('input');
+				obtn.setAttribute('type','button');
+				obtn.setAttribute('value','返回');
+				EventUtil.addEventHandler(obtn,'click',function(){history.go(-1);});
+				//o.appendChild(obtn);
+				document.body.appendChild(o);
+				document.body.appendChild(vlst);
+				loadXML('/cgi-bin/bbs/userlist?file1='+vfile1+'&file2='+vfile2,filllist,'');
+			}
+			function additem(item)
+			{
+				var oDiv,oli,oa,ot;
+				oli=document.createElement('li');
+				oa=document.createElement('a');
+				ot=document.createTextNode('删除');
+				oa.appendChild(ot);
+				oa.setAttribute('href','javascript:removeitem(\''+item+'\');');
+				oli.setAttribute('id','usl');
+				ot=document.createTextNode(item);
+				oli.appendChild(ot);
+				oli.appendChild(oa);
+				vlst.appendChild(oli);
+			}
+			function filllist(http_request,url,obj)
+			{
+				var o,i,x;
+				o=document.getElementsByTagName('h3');
+				x=http_request.responseXML.getElementsByTagName('title')[0];
+				if(o.length)
+				{o[0].firstChild.data=x.firstChild.data}
+				o=http_request.responseXML.getElementsByTagName('userlist')[0];
+				for(i=0;i<o.childNodes.length;i++)
+				{
+					var oitem=o.childNodes[i];
+					if(!oitem.tagName||oitem.tagName.toLowerCase()!='user')continue;
+					additem(oitem.firstChild.data);
+				}
+			}
+			function removeitem(item)
+			{
+				var o,i;
+				o=document.getElementsByTagName('li');
+				for(i=0;i<o.length;i++)
+				{
+					var x=o[i];
+					if(x&&x.firstChild&&x.firstChild.data==item)
+					{
+						x.parentNode.removeChild(x);
+						break;
+					}
+				}
+			}
+			function adduser()
+			{
+				var o,c,i;
+				var item=otxt.value;
+				if(item.length<1||item.length>12)
+				{alert('长度不符合要求');otxt.select();return;}
+				c=document.getElementsByTagName('li');
+				for(i=0;i<c.length;i++)
+				{
+					o=c[i];
+					if(o.firstChild&&o.firstChild.data.toLowerCase()==item.toLowerCase())break;
+				}
+				if(i<c.length)
+				{alert('用户'+item+'已存在于列表中');otxt.select();return;}
+				loadXML('/cgi-bin/bbs/jbbsqry?userid='+item+'&mode=1',gotuser,item);
+				otxt.select();
+			}
+			function gotuser(http_request,url,obj)
+			{
+				var o,x=http_request.responseXML.getElementsByTagName('idname');
+				if(x.length<1||!x[0].firstChild||!x[0].firstChild||x[0].firstChild.data.length<1)
+				{alert('您查找的用户'+obj+'不存在。');return;}
+				o=x[0].firstChild.data;
+				additem(o);
+			}
+			function txtchange(e)
+			{
+				if(e.keyCode==13)adduser();
+			}
+			function savelist()
+			{
+				if(!confirm('确定保存名单吗？'))return false;
+				var s,i;
+				s='';
+				for(i=0;i<vlst.childNodes.length;i++)
+				{
+					o=vlst.childNodes[i];
+					if(o&&o.tagName.toLowerCase()=='li'&&o.firstChild&&o.firstChild.data)s+=o.firstChild.data+' ';
+				}
+				var url='/cgi-bin/bbs/userlist?act=save&file1='+vfile1+'&file2='+vfile2;
+				var h=getHttpObj(url,listsaved,'');
+				if(!h)return false;
+				h.open('POST',url,true);
+				h.send('list='+s);
+			}
+			function listsaved(http_request,url,obj)
+			{
+				var o,i;
+				for(;vlst.firstChild;vlst.removeChild(vlst.firstChild));
+				alert('已提交信息！将显示新的状态。');
+				o=http_request.responseXML.getElementsByTagName('userlist')[0];
+				for(i=0;i<o.childNodes.length;i++)
+				{
+					var oitem=o.childNodes[i];
+					if(!oitem.tagName||oitem.tagName.toLowerCase()!='user')continue;
+					additem(oitem.firstChild.data);
+				}
+			}
+		</script>
+	</body>
+</html>

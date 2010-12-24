@@ -1,0 +1,7 @@
+#
+# Title=闲人免进区 - 限版主进入               (BM: BMS)
+#
+Name=○ 被砍掉的文章                       (BM: SYSOP)
+Path=~/deleted
+Numb=1
+#

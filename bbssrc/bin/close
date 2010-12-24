@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $# != 1 ]
+then
+	killall bbsd
+else
+	killall bbsd${1}
+	rm -f /home/bbs/bin/bbsd${1}
+fi

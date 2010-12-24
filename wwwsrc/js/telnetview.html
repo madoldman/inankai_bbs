@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gbk " />
+<title>Telnet view</title>
+<script language="javascript" src="ajax.js"></script>
+<script language="javascript">
+//WebTelnet 
+//By huangxu@nkbbs
+//Ver 1.1.0
+//2006-08-20
+var c,t;//两个对象
+var clrhl,clrll,arrfont;//常量数组
+var ESC='\x1b';
+var studlbf;//下划线，因为没有用style而是用了u标签，所以做成全局了
+var arrfls,cntfls;//闪烁用
+var tmr;//计时器
+function init()
+{
+	c=document.getElementById('c');
+	clrhl=Array('#808080','#FF0000','#00FF00','#FFFF00','#0000FF','#FF00FF','#00FFFF','#FFFFFF','');//高亮
+	clrll=Array('#000000','#800000','#008000','#808000','#000080','#C00080','#008080','#C0C0C0','');//低亮
+	arrfont=Array('宋体','宋体','黑体','楷体_GB2312');//字体，默认为宋体
+	tmr=setInterval('fo();',1000);
+	studlbf=0;
+	return;
+}
+function fo()//闪烁
+{
+	var i,o;
+	var tmp;
+	for (i=0;i<cntfls;i++)
+	{
+		o=document.getElementById('fo'+i);
+		tmp=o.style.color;
+		o.style.color=arrfls[i];
+		arrfls[i]=tmp;//交换前景色和缓冲中的颜色，初始缓冲中是背景色
+	}
+	return;
+}
+function repeatspan(rtime)
+{
+	var i;
+	var tmps;
+	tmps='';
+	if (studlbf)
+		tmps+='</u>';
+//	for (i=0;i<rtime;i++)
+		tmps+='</span>';
+	return tmps;//输出n个span
+}
+function previewthis(src)
+{
+	var s,l,i,x,v,n,i1;
+	var stt,ste,stf;//style状态
+	var stbgc,studl,stfls,stfnt,stfcl,sthlt,stngc,sthid;//背景，下划线，闪烁，字体，前景，高亮，底线，反白，不可见
+	var j,j1;//不可见忽略
+	var pushi;//缓冲i
+	var toolongi=16;//过长
+	var varctl;//控制字符缓冲
+	if (navigator.userAgent.indexOf("MSIE") == -1)
+	{
+		c.style.fontSize='16px';
+		c.width=16*40+1;
+	}
+	//非IE的时候排版有问题，第一行字符的数量决定了宽度
+	stfnt=arrfont[0];
+	stbgc=stfcl=8;
+	sthlt=stfls=studl=stngc=sthid=0;
+	s='<span>';
+	stt='';
+	stf=0;
+	ste=0;
+	v=ESC+ESC+'[m'+src;//初始化样式表，否则可能在telnetview处出错
+	l=v.length;
+	arrfls=Array();//清理闪烁缓冲
+	cntfls=0;
+	for (i=0;i<l;i++)
+	{
+		n=v.charAt(i);
+		x=v.charCodeAt(i);
+		switch(x)
+		{
+			case 13://firefox下找不到
+				break;
+			case 10://换行
+				s+=repeatspan(ste) + '<br>\n' + stt + '';
+				break;
+			case 27://ESCTag
+				if (v.charCodeAt(i+1)!=91)//'['
+					break;
+				i+=2;
+				pushi=i;
+				varctl='';
+				for(;;i++)
+				{
+					j=v.charCodeAt(i);
+					if (j>47&&j<58)
+						varctl=varctl*10+j-48;//数字，缓冲
+					else if (j>64&&j<69)//移动光标，不支持
+						break;
+					else if (j==110||j==115||j==117||j==75||j==74)//6n，报告光标位置，不支持
+						break;
+					else if (j==73)//I
+					{
+						varctl=parseInt(varctl);
+						if (isNaN(varctl))
+							varctl=0;
+						if (varctl<4)
+							stfnt=arrfont[varctl];
+						varctl='';
+						break;
+					}
+					//else if (j==58)//冒号命令，忽略
+						//;
+					else if (j==59||j==109)//m命令
+					{
+						varctl=parseInt(varctl);
+						if (isNaN(varctl))
+							varctl=0;
+						if (varctl==0)
+						{
+							//stfnt='';//字体不变
+							stbgc=stfcl=8;//默认设置为8，也就是空字符串
+							sthlt=stfls=studl=stngc=0;
+						}
+						else if (varctl==1)
+							sthlt=1;//高亮
+						else if (varctl==2||varctl==4)
+							studl=1;//下划线
+						else if (varctl==5)
+							stfls=1;//闪烁
+						else if (varctl==7)
+							stngc=1;//反白
+						else if (varctl==8)
+							sthid=1;//隐藏，没有实现的样式，因为搞不懂到底什么意思
+						else if (varctl>29&&varctl<38)//3x，前景色
+						{
+							if (sthlt)
+								stfcl=varctl-30;
+							else
+								stfcl=varctl-30;
+						}
+						else if (varctl>39&&varctl<48)//4x，背景色
+						{
+							stbgc=(varctl-40);
+						}
+						varctl='';
+						if (j==109)
+							break;
+					}
+					else if ((j>64&&j<91)||(j>96&&j<123)||j==48)
+						break;//字母和@退出
+					if (i-pushi>toolongi)//太长的话……哼哼
+					{
+						i=pushi;
+						break;
+					}
+				}
+				//处理样式
+				s+=repeatspan(ste);
+				ste=0;
+				stf=-1;
+				stt='';
+				//telnet view
+				if (stfcl==8)
+					stfcl=7;
+				//telnet view
+				if (stngc&&stfcl<8&&stbgc<8)
+				{
+					varctl=stfcl;
+					stfcl=stbgc;
+					stbgc=varctl;
+				}
+				stt+=' background-color: ' + clrll[stbgc] + ' ; ';
+				ste++;
+				varctl=(sthlt)?clrhl[stfcl]:clrll[stfcl];
+				if (stfls)//闪烁，缓冲背景色
+				{
+					arrfls.push(clrll[stbgc]);
+					stf=cntfls;
+					//stt+='<span id="fo' + cntfls + '" style="color:' + varctl + '">';
+				}
+				stt+='color:' + varctl + ' ; ';
+				ste++;
+				if (stfnt.length)
+				{
+					stt+='font-family:' + stfnt + ' ; ';
+					ste++;
+				}
+				if (stf>=0)
+				{
+					stt='<span id="fo' + stf + '" style="' + stt + '">';
+					cntfls++;
+				}
+				else
+					stt='<span style="' + stt + '">';
+				if (studl)
+					stt+='<u>';
+				studlbf=studl;
+				s+=stt; 
+				break;
+			case 60://小于
+				s+='&lt;';
+				break;
+			case 62://大于
+				s+='&gt;';
+				break;
+			case 38://And符
+				s+='&amp;';
+				break;
+			case 32://空格
+				s+='&nbsp;';
+				break;
+			default:
+				s+=n;
+		}
+	}
+	s+=repeatspan(ste);
+	stt='';
+	return s;
+}
+function defact(http_request,url,varobj)
+{
+	document.getElementById('c').innerHTML=previewthis(http_request.responseText);
+	return ;
+}
+</script>
+</head>
+
+<body>
+<table><tr><td id="c" bgcolor="black" style="font-size:16px;line-height:1">
+Loading......
+</td></tr></table>
+<script language="javascript">
+var srcurl=window.location.href;
+var pos=srcurl.indexOf('?url=')+5;
+if(pos>5)
+{
+	srcurl=srcurl.substring(pos);
+	init();
+	loadXML(srcurl,defact,0);
+}
+else
+{
+	document.getElementById('c').innerHTML='Error.';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+扩展的 mail2bbs [ by deardragon.bbs@fb2000.dhs.org ]
+这个 mail2bbs.c 是在 soff 的提议下进行扩展的。
+扩展后的 mail2bbs 可以通过发信件到 BoardName.Board.bbs@bbs.domain 来
+将信件张贴到板面上，而无需密码。
+当然，也存在一些已知问题：
+1. 和 mail 给 User 一样，任何人均可以给站内的任何 User 和板面发送信件
+   听说有一个发布是进行了修补的，或许可以借鉴
+   我自己觉得暂时没有必要进行这项工作，
+2. 如果 mail 给 abc.board.bbs@aaa.bbb.ccc ，而 aaa.bbb.ccc 该站并没有
+   abc 板面，但在其 bbs/boards/ 下有 abc 目录，信件同样会 append 到 abc
+   目录。   这样的情况很少见，况且别人也不知道那个目录有。
+或许还有其他没有考虑到的问题。
+上面的 1 比较重要，必要时进行完善。
+扩展后的 mail2bbs 是对信件 ID 进行判别，如果在 ID 中含有 . 则进行判断是否
+需要送到板面。比如说： mailto: abc.bbs@a.b.c.d , 进入到 mail2bbs 后，ID 为
+abc , 里面无点号，认为是发信给站内 User ； mailto: abc.board.bbs@a.b.c.d ,
+进入到 mail2bbs 后， ID 为 abc.board ，此时对 . 后的字符进行 5 位不区分大
+小写比较，如果是 board 则，送入板面。所以 mailto: abc.Boards.bbs@a.b.c.d
+可以是一样的送入到板面。

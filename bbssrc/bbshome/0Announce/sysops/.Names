@@ -1,0 +1,31 @@
+#
+# Title=闲人免进区 - 限站长进入               (BM: SYSOPS)
+# $Id: .Names,v 1.1.1.1 2008-11-23 08:13:23 madoldman Exp $
+Name=Firebird BBS 2000 使用手册             SYSOP 
+Path=~/Firebird-2000
+Numb=1
+#
+Name=本站管理者手册                         SYSOP 
+Path=~/Admin_Manual
+Numb=2
+#
+Name=FB2000 快速安装指南                    SYSOP
+Path=~/FB2000_Quick_Install
+Numb=3
+#
+Name=安装私人 BBS 快速指南                  SYSOP
+Path=~/Install_MY_BBS
+Numb=4
+#
+Name=升级到 FB2000 专业指南                 SYSOP
+Path=~/Update_To_FB2000
+Numb=5
+#
+Name=感谢支援 FB2000 的朋友                 SYSOP
+Path=~/FB2000_Thankyou
+Numb=6
+#
+Name=站长唯读讨论区精华                    (BM: SYSOP)
+Path=~/groups
+Numb=7
+#

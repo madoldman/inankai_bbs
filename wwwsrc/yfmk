@@ -1,0 +1,97 @@
+
+######
+# Thunder 2003.6.5
+# target all update install html clean 
+#######
+#为纪念yfmk女王，把脚本mk改名为yfmk
+#!/bin/bash
+SRC="init main board tools service admin digest wml"
+CGIPATH="/home/www/cgi-bin/bbs"
+HTMLPATH="/home/www/html"
+mk()
+{
+cd $1
+	
+        if [ -e Makefile ]
+	then
+		make $2
+		if [ $? -ne 0 ] 
+   	        then 
+                echo "Error found in: make $2"
+                echo "$PWD"
+                exit 1
+                fi
+
+        fi
+        
+        for x in $(ls)
+        do
+        if [ -d  $x ]
+ 	then
+                mk $x $2
+        fi 
+        done
+cd ..
+}
+
+
+
+f()
+{
+for a in $SRC
+do
+    mk $a $1
+done
+
+
+}
+
+
+
+
+case $1 in
+        update)         echo "make update" ;;
+	clean)		echo "make clean"  ;;
+        install)        echo "make install" 
+              	        ( rm -rf $CGIPATH.old
+                          mv $CGIPATH $CGIPATH.old 
+                          mkdir $CGIPATH  &&f $1 &&\
+			  chmod 771  -R $CGIPATH &&\
+			  chmod  +x -R $CGIPATH
+                          rm -Rf $HTMLPATH/js.old
+                          mv $HTMLPATH/js $HTMLPATH/js.old
+			  cp -Rf js $HTMLPATH
+			  chmod 777 $HTMLPATH/js
+                          chown -R bbs:bbs $HTMLPATH/js
+                          chown -R bbs:bbs $CGIPATH
+                          exit 0
+                        ) ;;
+
+
+        all)             echo " make all"   ;;
+        "")              echo "make"        ;;
+
+        html)
+			 echo "make html"
+			 rm -rf $HTMLPATH.old
+			 mv $HTMLPATH $HTMLPATH.old 
+			 mkdir $HTMLPATH &&\
+			 cd  DocumentRoot && \
+			 cp -rf * $HTMLPATH &&\
+			 chown bbs:bbs $HTMLPATH -R &&\
+                         chmod 771  -R $HTMLPATH
+			 cd ..
+			 exit 0
+                         ;; 
+        *) echo "target *$1*  not defined"
+           exit 1;;
+esac
+
+for a in $SRC
+do
+    mk $a $1
+done
+
+echo "done."
+
+

@@ -1,0 +1,28 @@
+A {TEXT-DECORATION: none;}
+A:visited { color: blue; }
+A:HOVER {COLOR: red;}
+TABLE.BODY {BORDER: 1px solid; BORDER-COLOR: e0e0e0;}
+BODY {BACKGROUND-COLOR: #ffffff; font-family:ËÎÌו; FONT-SIZE: 12px; }
+PRE {font-family:ËÎÌו}
+TABLE,TH,TD,P,INPUT,TEXTAREA,SELECT {font-family:ËÎÌו; FONT-SIZE: 12px;}
+FONT.c30 {COLOR: 000000;}
+FONT.c31 {COLOR: e00000;}
+FONT.c32 {COLOR: 008000;}
+FONT.c33 {COLOR: 808000;}
+FONT.c34 {COLOR: 0000ff;}
+FONT.c35 {COLOR: d000d0;}
+FONT.c36 {COLOR: 33a0a0;}
+FONT.c37 {COLOR: 000000;}
+FONT.c80 {font-size: 24px};
+.btn
+{
+    BORDER-RIGHT: #104a7b 1px solid;
+    BORDER-TOP: #afc4d5 1px solid;
+    BACKGROUND: #d6e7ef;
+    BORDER-LEFT: #afc4d5 1px solid;
+    CURSOR: hand;
+    COLOR: #000066;
+    BORDER-BOTTOM: #104a7b 1px solid;
+    HEIGHT: 19px;
+    TEXT-DECORATION: none
+}

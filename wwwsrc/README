@@ -1,0 +1,52 @@
+NKU Web BBS 1.0.0 测试版是在NJUWEBBBS 0.9 测试版基础上发展起来的
+使用FB V1126
+___________________________________________________________________
+安装说明：
+    在configure，yfmk文件中修改必要的配置
+    执行configure，为每个目录生成Makefile文件
+    执行./yfmk html,  生成web服务主目录结构
+    ./yfmk install 编译安装cgi
+        
+    yfmk支持 update，all，clean,install,html选项。
+   
+    里面有一些南开站专用的代码,大家自己看着去掉吧
+    有问题请于我们联系啊。
+    欢迎访问
+		http://nkbbs.org/
+		http://202.113.16.117/
+
+                                   我爱南开WEBBBS开发组
+                                           2003.6.5
+________________________________________________________
+
+代码目录介绍 
+. 
+   admin   系统公告管理,风格管理,推荐文章管理 
+   board 
+           ./   文章edit,post,del,显示... 
+           g    文摘模式 
+           m    管理模式 
+           t    同主题模式 
+           d    讨论区模式 
+   digest  关于精华区 
+   include 头文件 
+   init    login,logout,进站数据统计 
+   main    构成index.html的四个frame 
+   service 
+           chat  聊天,讯息,用户查询 
+           mail  信件服务 
+           ftp   局域网ftp搜索服务 
+           personalsetting 
+                 用户个人设置,个人参数,资料,收藏夹,风格.... 
+   tools 
+           account  帐号注册 
+           file     上传文件 
+           deny     封人 
+           board    查看所有板面,板面查找,选择,置顶,进版画面,板内在线... 
+           .        一些其他常用程式 
+   DocumentRoot     html主目录 
+   doc              文档目录 
+   README 
+   configure        用于自动为源码目录生成Makefile 
+   yfmk               编译程式,支持update,all,install,html选项 
+  

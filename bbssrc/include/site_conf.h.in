@@ -1,0 +1,14 @@
+/*
+CVS: $Id: site_conf.h.in,v 1.1.1.1 2008-11-23 08:13:23 madoldman Exp $
+*/
+#ifndef _AUTOCONFIG_H_
+#define _AUTOCONFIG_H_
+
+#define HAVE_STRFTIME 	0
+#define HAVE_LIBCRYPT 	0
+#define HAVE_LIBTERMCAP 0
+#define HAVE_MMAP 		0
+#define HAVE_RSTAT		0
+#define HAVE_GETLOADAVG	0
+
+#endif

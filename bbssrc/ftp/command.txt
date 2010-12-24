@@ -1,0 +1,5 @@
+user nk
+nk
+ls -lR
+bye 
+

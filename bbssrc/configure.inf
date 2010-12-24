@@ -1,0 +1,10 @@
+######################################################
+This file is generate by configure $Revision: 1.2 $
+######################################################
+PERL=/usr/bin/perl
+BBS_ID=iNanKai
+DOMAIN=all.inankai.net
+CNAME=南开人社区
+DEFAULTBD=sysop
+BUILD_PLATFORM=linux
+LIBCRYPT=DES

@@ -1,0 +1,359 @@
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=gb2312">
+		<style type=text/css>
+			A {color: #0000FF}
+			input {font-size: 9pt; border: #666666; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+		</style>
+		<LINK href="/css/violet_spirit/bbsguide4.css" type="text/css" rel="stylesheet" id="csssheet">
+		<script language="javascript" src="/js/ajax.js"></script>
+		<script language="javascript" src="/js/home_style.js"></script>
+		<script language="javascript">
+			var of3,off3,ouid,otime,ool,onm,ost,oinfo,oti;
+			var tmr,tmrmsg,divpos,ms,lld,nonm;
+			var DIVTIPID='divNMTip';
+			function gettarget()
+			{
+				var o=top.frames;
+				var i;
+				for(i=0;i<o.length;i++)
+				{
+					if(o[i].name=='f3')
+					{off3=o[i];of3=o[i].document;break;}
+				}
+				if(!of3)
+				{alert('此导航条无法单独使用');location.href='/index.html';}
+			}
+			function init_foot()
+			{
+				init();
+				nonm=false;
+				var o;
+				try{if(location.href.toLowerCase().indexOf('photo.inankai')>=0)top.document.getElementById('bbsmainfra_main').src='/cgi-bin/bbs/bbsboa?3'}catch(ex){};
+				gettarget();
+				oinfo=of3.getElementById(DIVTIPID);
+				o=document.createElement('a');
+				o.setAttribute('href','javascript:chgstat();');
+				o.appendChild(document.createTextNode('导航条'));
+				document.body.appendChild(o);
+				o=document.createTextNode(' 用户[');
+				document.body.appendChild(o);
+				ouid=document.createTextNode('guest');
+				o=document.createElement('a');
+				o.setAttribute('target','f3');
+				o.appendChild(ouid);
+				document.body.appendChild(o);
+				o=document.createTextNode('][');
+				document.body.appendChild(o);
+				otime=document.createTextNode('正在加载导航条，请稍候……');
+				document.body.appendChild(otime);
+				o=document.createTextNode(']在线[');
+				document.body.appendChild(o);
+				ool=document.createTextNode('0');
+				o=document.createElement('a');
+				o.setAttribute('href','/cgi-bin/bbs/bbsusr');
+				o.setAttribute('target','f3');
+				o.appendChild(ool);
+				document.body.appendChild(o);
+				o=document.createTextNode(']新信[');
+				document.body.appendChild(o);
+				onm=document.createTextNode('0');
+				o=document.createElement('a');
+				o.setAttribute('href','/cgi-bin/bbs/bbsmail');
+				o.setAttribute('target','f3');
+				o.appendChild(onm);
+				document.body.appendChild(o);
+				document.body.appendChild(document.createTextNode(']['));
+				ost=document.createTextNode('0:00');
+				document.body.appendChild(ost);
+				o=document.createTextNode('] ');
+				document.body.appendChild(o);
+				o=document.createElement('a');
+				o.setAttribute('href','javascript:loaddata();');
+				o.appendChild(document.createTextNode('刷新'));
+				document.body.appendChild(o);
+				document.body.appendChild(document.createTextNode(' '));
+				o=document.createElement('a');
+				o.setAttribute('href','/cgi-bin/bbs/bbsfriend');
+				o.setAttribute('target','f3');
+				o.appendChild(document.createTextNode('在线好友'));
+				document.body.appendChild(o);
+				document.body.appendChild(document.createTextNode(' '));
+				o=document.createElement('a');
+				o.setAttribute('href','javascript:sendmsgdlg(\'\');');
+				o.appendChild(document.createTextNode('送信息'));
+				document.body.appendChild(o);
+				document.body.appendChild(document.createTextNode(' '));
+				o=document.createElement('a');
+				o.setAttribute('href','/cgi-bin/bbs/bbsmsg');
+				o.setAttribute('target','f3');
+				o.appendChild(document.createTextNode('查看信息'));
+				document.body.appendChild(o);
+				ms=parseInt(getCookie('msgstart'));
+				if(isNaN(ms))ms=-1;
+				lld=new Date();
+				loaddata();
+				tmr=setInterval(loaddata,30000);
+			}
+			function loaddata()
+			{
+				var u='/cgi-bin/bbs/jbbsfoot?ms='+ms;
+				http_request=getHttpObj(u,updatefoot,'');
+				if(!http_request)
+				{
+					alert('本系统仅支持IE5+，Firefox，Opera8+。请勿使用各类所谓“精简”版或“优化”操作系统！');
+					location.href='/cgi-bin/bbs/bbsfoot';
+					return;
+				}
+				http_request.open('POST',u,true);
+				http_request.send('rndkey='+Math.random());
+				var n,a,b;
+				if(!lld)lld=new Date();
+				n=new Date();
+				a=(n.getHours()*3600+n.getMinutes()*60+n.getSeconds());
+				b=(lld.getHours()*3600+lld.getMinutes()*60+lld.getSeconds());
+				u=(a-b)%3600;
+				if(u>120)
+				{
+					gettarget();
+					n=of3.createElement('div');
+					n.style.color='red';
+					n.style.backgroundColor='yellow';
+					n.style.fontSize='24px';
+					n.style.fontFace='黑体';
+					n.style.textAlign='center';
+					n.appendChild(of3.createTextNode('连接断开提示'));
+					n.appendChild(of3.createElement('br'));
+					n.appendChild(of3.createTextNode('您与我爱南开已断开'+Math.ceil(u/60)+'分钟'));
+					n.appendChild(of3.createElement('br'));
+					n.appendChild(of3.createTextNode('请检查网络连接'));
+					divpos=0;
+					tipdialog(n);
+				}
+			}
+			function updatefoot(http_request,url,obj)
+			{
+				var o,i;
+				if(!http_request||!http_request.responseXML)return;
+				o=http_request.responseXML.getElementsByTagName('userid');
+				if(o.length){o=o[0].firstChild;ouid.data=o.data;ouid.parentNode.setAttribute('href','/cgi-bin/bbs/bbsqry?userid='+o.data);}
+				o=http_request.responseXML.getElementsByTagName('time');
+				if(o.length){otime.data=o[0].firstChild.data;}
+				o=http_request.responseXML.getElementsByTagName('online');
+				if(o.length){ool.data=o[0].firstChild.data;}
+				o=http_request.responseXML.getElementsByTagName('newmail');
+				if(o.length){onm.data=o[0].firstChild.data;if(parseInt(onm.data)>0)newmail(onm.data);}
+				o=http_request.responseXML.getElementsByTagName('stay');
+				if(o.length){ost.data=o[0].firstChild.data;}
+				o=http_request.responseXML.getElementsByTagName('newms');
+				if(o.length){i=parseInt(o[0].firstChild.data);if(isNaN(i))i=0;gotnewmsg(http_request,i);}
+				http_request=null;
+				var n,a,b;
+				if(!lld)lld=new Date();
+				n=new Date();
+				a=(n.getHours()*3600+n.getMinutes()*60+n.getSeconds());
+				b=(lld.getHours()*3600+lld.getMinutes()*60+lld.getSeconds());
+				u=(a-b)%3600;
+				if(u>120)closetip();
+				lld=n;
+			}
+			function gotnewmsg(http_request,newms)
+			{
+				var o,i,s,c;
+				var REPLY='(^Z回)';
+				if(ms<0||newms<=ms){ms=newms;setCookie('msgstart',ms,'','','','');return 0;}
+				ms=newms;
+				setCookie('msgstart',ms,'','','','');
+				o=http_request.responseXML.getElementsByTagName('msg');
+				c=0;
+				for(i=0;i<o.length;i++)
+				{
+					s=o[i].firstChild.firstChild.data;
+					if(s.indexOf('To ')==0)continue;
+					c++;
+				}
+				if(c<=0)return c;
+				gettarget();
+				closetip();
+				o=of3.createElement('div');
+				o.appendChild(of3.createTextNode(c>1?'仅显示最后的消息。':'您收到了一条消息。'));
+				i=of3.createElement('a');
+				i.setAttribute('href','/cgi-bin/bbs/bbsmsg');
+				i.appendChild(of3.createTextNode('查看所有消息'));
+				o.appendChild(i);
+				o.appendChild(of3.createElement('br'));
+				o.appendChild(of3.createTextNode(s));
+				o.appendChild(makemsgdlg());
+				i=s.indexOf(' ');
+				divpos=-150;
+				tipdialog(o);
+				c=of3.getElementById(DIVTIPID+'msgrcv');
+				if(c)c.value=s.substring(0,i);
+				tmrmsg=setInterval(msgdialog,50);
+			}
+			function makemsgdlg()
+			{
+				var o,r,s,e;
+				r=of3.createElement('div');
+				r.style.textAlign='center';
+				o=of3.createElement('input');
+				o.setAttribute('type','button');
+				o.setAttribute('value','按这里发送信息');
+				EventUtil.addEventHandler(o,'click',sendmsg);
+				r.appendChild(o);
+				o=of3.createElement('input');
+				o.setAttribute('type','text');
+				o.setAttribute('maxlength','14');
+				o.setAttribute('size','14');
+				o.setAttribute('id',DIVTIPID+'msgrcv');
+				s=(of3.location.href+' ');
+				e=new RegExp('userid=([a-zA-Z0-9]{2,12})[^a-zA-Z0-9]','i');
+				if(e.test(s))o.setAttribute('value',RegExp.$1);
+				r.appendChild(of3.createTextNode('  对'));
+				r.appendChild(o);
+				r.appendChild(of3.createTextNode('说：'));
+				r.appendChild(of3.createElement('br'));
+				o=of3.createElement('input');
+				o.setAttribute('type','text');
+				o.setAttribute('maxlength','50');
+				o.setAttribute('size','50');
+				o.setAttribute('id',DIVTIPID+'msgtxt');
+				EventUtil.addEventHandler(o,'keypress',msgchange);
+				r.appendChild(o);
+				oti=of3.createTextNode('');
+				r.appendChild(of3.createElement('br'));
+				r.appendChild(oti);
+				return r;
+			}
+			function msgchange(e)
+			{
+				if(e.keyCode==13)sendmsg();
+			}
+			function sendmsg()
+			{
+				var url='/cgi-bin/bbs/bbssendmsg';
+				var http_request;
+				var tmp,s,o;
+				s='enc=utf8';
+				o=of3.getElementById(DIVTIPID+'msgrcv');
+				if(o)s+=('&toid='+o.value);
+				if(o.value.length==0)return;
+				o=of3.getElementById(DIVTIPID+'msgtxt');
+				if(o)s+=('&msg='+encodeURIComponent(o.value));
+				if(o.value.length==0)return;
+				if(oti)oti.data='正在发送消息……';
+				http_request=getHttpObj(url,sentmsg,'');
+				if(!http_request)return;
+				http_request.open('POST',url,true);
+				http_request.send(s);
+			}
+			function sentmsg(http_request,url,obj)
+			{
+				var o,i,s;
+				s=http_request.responseText;
+				i=s.indexOf('</style>');
+				if(i<0)i=0;
+				i+=8;
+				while(s.charCodeAt(i)>=0&&s.charCodeAt(i)<=32)i++;
+				o=s.indexOf('<',i+1);
+				if(o<0)s=s.substring(i);else s=s.substring(i,o);
+				if(oti)oti.data=s;
+				http_request=null;
+			}
+			function sendmsgdlg(user)
+			{
+				var o;
+				gettarget();
+				clearInterval(tmrmsg);
+				closetip();
+				divpos=0;
+				o=of3.createElement('div');
+				o.appendChild(makemsgdlg());
+				tipdialog(o);
+			}
+			function closetip()
+			{
+				if(oinfo=of3.getElementById(DIVTIPID))oinfo.parentNode.removeChild(oinfo);;
+			}
+			function tipdialog(obj)
+			{
+				var o,oa;
+				closetip();
+				oinfo=of3.createElement('div');
+				oinfo.setAttribute('id',DIVTIPID);
+				oinfo.style.backgroundColor='#66ccff';
+				oinfo.style.background='url(\'/image/msg.gif\')';
+				oinfo.style.width='350px';
+				oinfo.style.height='150px';
+				oinfo.style.display='block';
+				oinfo.style.position='absolute';
+				oinfo.style.right='10px';
+				oinfo.style.bottom=getpos();
+				oinfo.style.borderWidth='2px';
+				oinfo.style.borderStyle='solid';
+				oinfo.style.borderColor='#3366cc';
+				EventUtil.addEventHandler(off3,'scroll',setdivpos);
+				oa=of3.createElement('a');
+				oa.setAttribute('href','javascript:void(0);');
+				oa.appendChild(of3.createTextNode('关闭'));
+				EventUtil.addEventHandler(oa,'click',closetip);
+				o=of3.createElement('div');
+				o.style.textAlign='right';
+				o.appendChild(oa);
+				oinfo.appendChild(o);
+				oinfo.appendChild(obj);
+				of3.body.appendChild(oinfo);
+			}
+			function getpos()
+			{
+				if(ieVer<7&&ieVer>=5)return divpos+'px';else return divpos-of3.body.scrollTop+'px';
+			}
+			function setdivpos()
+			{
+				if(oinfo)if(ieVer<7&&ieVer>=5&&divpos==0)oinfo.style.bottom='1px';oinfo.style.bottom=getpos();
+			}
+			function hidemailtip()
+			{
+				nonm=true;
+				closetip();
+			}
+			function newmail(cnt)
+			{
+				var o,oa;
+				if(nonm)return;
+				gettarget();
+				o=of3.createElement('div');
+				o.style.textAlign='center';
+				o.style.fontSize='24px';
+				oa=of3.createElement('a');
+				oa.appendChild(of3.createTextNode('您有'+cnt+'封新信'));
+				oa.setAttribute('href','/cgi-bin/bbs/bbsnewmail');
+				oa.style.color='#ff6600';
+				o.appendChild(of3.createElement('br'));
+				o.appendChild(oa);
+				oa=of3.createElement('a');
+				oa.setAttribute('href','javascript:void(0);');
+				oa.appendChild(of3.createTextNode('暂时关闭信件提示'));
+				EventUtil.addEventHandler(oa,'click',hidemailtip);
+				oa.style.fontSize='12px';
+				o.appendChild(of3.createElement('br'));
+				o.appendChild(oa);
+				divpos=-150;
+				tipdialog(o);
+				tmrmsg=setInterval(msgdialog,50);
+			}
+			function msgdialog()
+			{
+				if(divpos<0)divpos+=10;else{clearInterval(tmrmsg);}
+				setdivpos();
+			}
+			function chgstat()
+			{
+				top.lf.cols=="130,*"?top.lf.cols="0,*":top.lf.cols="130,*";
+			}
+		</script>
+
+	</head>
+	<body id="bbsfoot" onload="init_foot();">
+	</body>
+</html>

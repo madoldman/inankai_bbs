@@ -1,0 +1,11 @@
+#!/bin/bash
+if [ $# != 1 ]
+then
+	/home/bbs/bin/bbsd 23
+else
+	if [ ! -x /home/bbs/bin/bbsd$1 ]
+	then
+		cp src/bbsd /home/bbs/bin/bbsd$1
+	fi
+	/home/bbs/bin/bbsd$1 $1
+fi

@@ -1,0 +1,9 @@
+#use this to clean the share memory,but all the bbsd is closed
+echo "We will kill all bbsd processes now! "
+/usr/bin/killall -9 bbsd
+echo "   done.\n"
+
+echo "now clean the share memory.\n"
+ipcs -m | awk '$0~/bbs/ {system(sprintf("ipcrm shm %s",$2));}'
+echo "done;\nDo not forget to start the bbsd process!"
+
