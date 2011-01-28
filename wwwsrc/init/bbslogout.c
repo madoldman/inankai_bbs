@@ -1,4 +1,4 @@
-/*$Id: bbslogout.c,v 1.4 2009-03-23 04:00:24 maybeonly Exp $
+/*$Id: bbslogout.c,v 1.5 2011-01-25 08:26:54 maybeonly Exp $
 */
 
 #include "BBSLIB.inc"
@@ -31,8 +31,14 @@ int main()
   1. Add a new field lastrecord into the user_info structure, this field is used to store the last time the user experience is calculated
   2. Record the user online data whenever there is an unload event at the user page
  */
- int logintime=time(0) - u->lastrecord;
- currentuser.stay+=logintime;
+ char buf[80];
+ int logintime;
+ snprintf(buf, sizeof(buf), "%s/etc/double_stay", BBSHOME);
+ if(dashf(buf))
+	logintime =  (time(0) - u->lastrecord) * 2;
+ else
+	logintime = time(0) - u->lastrecord;
+ currentuser.stay+=logintime ;
  u->lastrecord = time(0);
  save_user_data(&currentuser);
  memset(u, 0, sizeof(struct user_info));

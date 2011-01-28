@@ -21,7 +21,7 @@
 */
 
 /*
-$Id: main.c,v 1.7 2009-10-02 06:03:14 thom Exp $
+$Id: main.c,v 1.8 2011-01-25 08:22:47 madoldman Exp $
 */
 #include "bbs.h"
 
@@ -224,7 +224,11 @@ void u_exit()
 	{
 		time_t  stay;
 		set_safe_record();
-		stay = time(0) - login_start_time;
+		snprintf(genbuf, sizeof(genbuf), "%s/etc/double_stay", BBSHOME);
+		if(dashf(genbuf))
+			stay = (time(NULL) - login_start_time) * 2;
+		else
+			stay = time(NULL) - login_start_time;
 		currentuser.stay += stay;
         if(!uinfo.invisible)
 			currentuser.lastlogout = time(0);

@@ -3183,7 +3183,7 @@ static char *e_file[] =
 	"posts/topblackt","posts/ext","bless/ext","posts/day","bless/day",
 	"campus","bbsannounce","deny_s_board","../ip.allow","sysops",
 	"menu1.ini", "menu.ini","../NOLOGIN", "../NOREGISTER",
-	"../NOPOST",  "../../www/html/news/noupload.html",NULL};
+	"../NOPOST",  "../../www/html/news/noupload.html", "double_stay",NULL};
 
 
 /*
@@ -3197,7 +3197,7 @@ static char *e_file[] =
 	"指定十大文章","指定十大祝福文章","编辑十大","编辑十大祝福","校内公告",
 	"站内公告","S权限不可进入板面","内网地址设定","管理者名单","menu1.ini", 
 	"menu.ini","暂停登陆(NOLOGIN)", "暂停注册(NOREGISTER)",
-	"全站只读(NOPOST)", "暂停附件上传", NULL};
+	"全站只读(NOPOST)", "暂停附件上传", "挂站双倍积分",NULL};
 
 /*
 
@@ -3244,7 +3244,7 @@ static char *e_file[] =
 	}
 	
 
-        if((ch==10||ch==11||ch==12)&&!HAS_PERM(PERM_ACCOUNTS)&&!HAS_PERM(PERM_SYSOP))
+        if((ch==10||ch==11||ch==12|| ch == 33)&&!HAS_PERM(PERM_ACCOUNTS)&&!HAS_PERM(PERM_SYSOP))
 	{
 	     clear();
 	     prints("您没有权限修改本项档案,请确认您有SYSOP或ACCOUNTS权限");
